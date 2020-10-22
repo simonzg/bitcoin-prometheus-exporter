@@ -78,6 +78,8 @@ func main() {
 		}
 		return float64(len(peerInfo))
 	})
+	prometheus.Unregister(prometheus.NewProcessCollector(os.Getpid(), ""))
+	prometheus.Unregister(prometheus.NewGoCollector())
 	http.Handle("/metrics", promhttp.Handler())
 	logrus.Info("Now listening on 8080")
 	logrus.Fatal(http.ListenAndServe(listendAddr, nil))
