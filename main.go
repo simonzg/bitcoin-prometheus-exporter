@@ -81,6 +81,6 @@ func main() {
 	prometheus.Unregister(prometheus.NewProcessCollector(os.Getpid(), ""))
 	prometheus.Unregister(prometheus.NewGoCollector())
 	http.Handle("/metrics", promhttp.Handler())
-	logrus.Info("Now listening on 8080")
+	logrus.Info("Now listening on " + listendAddr)
 	logrus.Fatal(http.ListenAndServe(listendAddr, nil))
 }
