@@ -57,13 +57,32 @@ func main() {
 		panic(err)
 	}
 	defer client.Shutdown()
+	setGauge("hashrate", "The local blockchain hashrate", func() float64 {
+		minfo, err := client.GetMiningInfo()
+		if err != nil {
+			fmt.Println("hashrate update error", err)
+			return -1
+		}
+		return float64(minfo.NetworkHashPS)
+	})
+
+	setGauge("difficulty", "The local blockchain difficulty", func() float64 {
+		minfo, err := client.GetMiningInfo()
+		if err != nil {
+			fmt.Println("difficulty update error", err)
+			return -1
+		}
+		return float64(minfo.Difficulty)
+	})
+
 	setGauge("block_count", "The local blockchain length", func() float64 {
 		blockCount, err := client.GetBlockCount()
 		if err != nil {
-			panic(err)
+			fmt.Println("block count update error", err)
 		}
 		return float64(blockCount)
 	})
+
 	setGauge("raw_mempool_size", "The number of txes in rawmempool", func() float64 {
 		hashes, err := client.GetRawMempool()
 		if err != nil {
@@ -71,6 +90,7 @@ func main() {
 		}
 		return float64(len(hashes))
 	})
+
 	setGauge("connected_peers", "The number of connected peers", func() float64 {
 		peerInfo, err := client.GetPeerInfo()
 		if err != nil {
@@ -78,9 +98,10 @@ func main() {
 		}
 		return float64(len(peerInfo))
 	})
+
 	prometheus.Unregister(prometheus.NewProcessCollector(os.Getpid(), ""))
 	prometheus.Unregister(prometheus.NewGoCollector())
 	http.Handle("/metrics", promhttp.Handler())
-	logrus.Info("Now listening on 8080")
+	logrus.Info("Now listening on " + listendAddr)
 	logrus.Fatal(http.ListenAndServe(listendAddr, nil))
 }
