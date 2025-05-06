@@ -1,14 +1,14 @@
 # Build meter in a stock Go builder container
-FROM dfinlab/build-env as builder
+FROM meterio/build-env:24.04 AS builder
 
 WORKDIR  /app
 
 COPY . .
-
+ENV GOROOT=/usr/local/go
 RUN make
 
 # Pull meter into a second stage deploy alpine container
-FROM ubuntu:18.04
+FROM ubuntu:24.04
 
 # RUN apk add --no-cache ca-certificates
 COPY --from=builder /app/bitcoind_exporter /usr/bin/
